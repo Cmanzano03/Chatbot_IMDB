@@ -15,8 +15,6 @@ import streamlit as st
 
 # Función para simular la respuesta del chatbot (por ejemplo, basado en IMDB)
 def chatbot_response(query, genre):
-    # Aquí iría la lógica para buscar en tu base de datos (ej. IMDB)
-    # Esto es solo un ejemplo, debes integrarlo con tu modelo real
     return f"**Mostrando resultados para la solicitud:** '{query}' **en el género:** '{genre}'."
 
 # Interfaz de usuario de Streamlit
@@ -58,7 +56,7 @@ def main():
         .stTextInput>div>div>input:focus {
             border: 1px solid #1a73e8;  /* Borde azul cuando está seleccionado */
         }
-        .stSelectbox>div>div>div>div>input {
+        .stSelectbox>div>div>div>div>div>div>input {
             border-radius: 5px;
             padding: 10px;
             font-size: 16px;
@@ -67,7 +65,7 @@ def main():
             color: #333333;
             border: 1px solid #ddd;
         }
-        .stSelectbox>div>div>div>div>input:focus {
+        .stSelectbox>div>div>div>div>div>div>input:focus {
             border: 1px solid #1a73e8;
         }
         .stWarning {
@@ -88,7 +86,7 @@ def main():
     # Cuadro de texto para escribir la solicitud
     query = st.text_input("¿Qué película te gustaría buscar?", placeholder="Escribe el título de una película...")
 
-    # Dropdown para elegir el género
+    # Dropdown para elegir el género (con un pequeño ajuste para mejorar su apariencia)
     genres = ['Acción', 'Comedia', 'Drama', 'Terror', 'Ciencia Ficción', 'Romántica']
     genre = st.selectbox('Selecciona el género', genres)
 
@@ -104,3 +102,4 @@ def main():
 # Ejecutar la interfaz
 if __name__ == '__main__':
     main()
+
