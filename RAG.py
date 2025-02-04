@@ -17,9 +17,9 @@ class RAGQA:
             max_length=200,  # 🔹 Permite respuestas más largas
             min_length=50,   # 🔹 Evita respuestas demasiado cortas
             do_sample=True,  # 🔹 Habilita el muestreo
-            temperature=0.7, # 🔹 Hace la generación más creativa
+            temperature=0.2, # 🔹 Hace la generación más creativa
             top_p=0.9,       # 🔹 Sampling más natural
-            repetition_penalty=1.2 # 🔹 Evita repetir frases
+            repetition_penalty=1.7 # 🔹 Evita repetir frases
         )
 
     def generate_answer(self, query, top_k=1):
@@ -67,3 +67,5 @@ if __name__ == "__main__":
             break
         answer = rag.generate_answer(query)
         print(answer)
+        print()
+        print()
