@@ -5,34 +5,44 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 import os
+import argparse
+from sklearn.preprocessing import MinMaxScaler
 
 class DenseRetriever:
-    def __init__(self, df, model_name="sentence-transformers/all-MiniLM-L6-v2"):
+    def __init__(self,  model_name="sentence-transformers/all-MiniLM-L6-v2", pathEmbeddings=None, pathCSV=None):
         """
         Inicializa el modelo de embeddings y almacena los embeddings en memoria.
         :param df: DataFrame con las columnas ["title", "overview"].
         :param model_name: Nombre del modelo de Hugging Face.
         """
-        self.df = df
+        self.df = pd.read_csv(pathCSV)
+        scaler = MinMaxScaler()
+        self.df["popularity"] = scaler.fit_transform(self.df[["popularity"]])
         self.model = SentenceTransformer(model_name)
+        
         self.embeddings = None
 
         # Concatenar "title + overview" para generar embeddings
         self.df["text"] = self.df["title"] + " - " + self.df["overview"]
 
         # Generar embeddings para las películas
-        self._generate_embeddings("./movie_embeddings.npy") # Se puede añadir un path
+        self._generate_embeddings(pathEmbeddings) # Se puede añadir un path
 
     def _generate_embeddings(self, pathEmbeddings=None):
         """Genera embeddings y los almacena en memoria."""
-        if pathEmbeddings and os.path.exists(pathEmbeddings):
+        if pathEmbeddings is not None and os.path.exists(pathEmbeddings):
             self.embeddings = np.load(pathEmbeddings)
-            print(f"Embeddings cargados desde el archivo: {pathEmbeddings}")
+            print(f"Embeddings cargados desde: {pathEmbeddings}")
         else:
-          print("🔹 Generando embeddings...")
-          self.embeddings = self.model.encode(self.df["text"].tolist(), convert_to_numpy=True)
-          np.save("movie_embeddings.npy", self.embeddings)  # Guardar embeddings en un archivo .npy
-          print("✅ Embeddings generados.")
+            pathEmbeddings="./imdb_embeddings.npy"
+            if os.path.exists(pathEmbeddings):
+                print("Borrados embeddings anteriores...")
+                os.remove(pathEmbeddings)
+            print("Generando nuevos embeddings...")
+            self.embeddings = self.model.encode(self.df["text"].tolist(), convert_to_numpy=True)
+            self.save_embeddings(pathEmbeddings)
+            print(f"Embeddings generados y almacenados en {pathEmbeddings}.")
+            
 
     def save_embeddings(self, path):
         """Guarda los embeddings en un archivo .npy."""
@@ -66,13 +76,17 @@ class DenseRetriever:
 
 
 if __name__ == "__main__":
-    # Cargar el dataset
-    print("📚 Cargando dataset...")
-    df = pd.read_csv("./peliculasPopulares10k_Procesado.csv")
-    print(f"✅ Dataset cargado: {df.shape[0]} películas.")
-    # Inicializar el modelo
-    retriever = DenseRetriever(df)
-    print("✅ Modelo inicializado.")
+    
+    parser = argparse.ArgumentParser(description="Dense Retriever for Movie Embeddings")
+    parser.add_argument("--pathCSV", type=str, required=True, help="Path to the CSV file containing movie data")
+    parser.add_argument("--pathEmbeddings", type=str, required=False, help="Path to the .npy file containing precomputed embeddings")
+
+    args = parser.parse_args()
+    pathCSV = args.pathCSV
+    pathEmbeddings = args.pathEmbeddings
+
+    retriever = DenseRetriever(pathCSV=pathCSV, pathEmbeddings=pathEmbeddings)
+  
 
     while True:
         query = input("Ingresa la descripción de la pelicula aquí (o 'salir' para terminar): ")
