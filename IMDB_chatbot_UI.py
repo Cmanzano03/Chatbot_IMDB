@@ -20,7 +20,7 @@ def chatbot_response(query, genre):
 # Interfaz de usuario de Streamlit
 def main():
     # Estilo de fondo, texto y otros ajustes de apariencia (Modo claro)
-    st.set_page_config(page_title="Chatbot de Películas", page_icon="🎬", layout="centered")
+    st.set_page_config(page_title="MovieFinder", page_icon="🎬", layout="centered")
     st.markdown(
         """
         <style>
@@ -86,7 +86,7 @@ def main():
     st.markdown(
         """
         <div style="background-color: green; color: white; padding: 10px; border-radius: 5px; font-weight: bold; font-size: 18px; text-align: center;">
-            This chatbot provides a description of a movie based on the user's query.
+            Find the movie you do not remember the title.
         </div>
         """,
         unsafe_allow_html=True
@@ -106,8 +106,12 @@ def main():
         rag = RAGQA(retriever)
 
         # Genera la respuesta
-        answer, title = rag.generate_answer(question, top_k=1)
-        st.write(f"**Movie Title:** {title}")
+        answer, title, year, adult = rag.generate_answer(question, top_k=1)
+        if adult:
+            adult = "Yes"
+        else:
+            adult = "No"
+        st.write(f"**Movie Title:** {title} **Year:** {year.split('-')[0]} **Adult Only:** {adult}")        
         st.write(answer)
 
 

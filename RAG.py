@@ -17,7 +17,7 @@ class RAGQA:
             max_length=200,  # 🔹 Permite respuestas más largas
             min_length=50,   # 🔹 Evita respuestas demasiado cortas
             do_sample=True,  # 🔹 Habilita el muestreo
-            temperature=0.01, # 🔹 Hace la generación más creativa
+            temperature=0.2, # 🔹 Hace la generación más creativa
             top_p=0.9,       # 🔹 Sampling más natural
             repetition_penalty=1.7 # 🔹 Evita repetir frases
         )
@@ -40,18 +40,25 @@ class RAGQA:
 
         #  Construir el prompt para el modelo generativo
         prompt = (
-    f"You are a movie assistant. A user has asked: '{query}'.\n\n"
-    f"Here are some relevant movies:\n{context}\n\n"
-    "Your response must be a short description of a single movie that fits the user query.\n\n"
-    "**DO NOT MENTION** any actor names or director names, either real or fictional.\n"
-    "Focus your description on the plot, genre, or theme. Only provide a short summary.\n"
-)
+        
+            f"CONTEXT:\n{context}\n\n"
+            "TALKS ABOUT THE MAIN PLOT OF THE MOVIE.\n"
+            "DO NOT MENTION, FILM TITLE, FILM RELEASE YEAR, DIRECTOR, ACTORS.\n"
+            "FOCUS YOUR DESCRIPTION ON THE PLOT, GENRE, OR THEME. ONLY PROVIDING A SHORT RESUME.\n"
+        )
 
 
         # Generar la respuesta
         response = self.generator(prompt, max_length=100, truncation=True)
-
-        return response[0]["generated_text"], retrieved_movies.iloc[0]["title"] , 
+        resumen = response[0]["generated_text"]
+        index=resumen.find(":")
+        resumen=resumen[index+1:]
+        title = retrieved_movies.iloc[0]["title"]
+        year = retrieved_movies.iloc[0]["release_date"]
+        adult = retrieved_movies.iloc[0]["adult"]
+       
+        return resumen,  title, year, adult
+    
     
 
 if __name__ == "__main__":
