@@ -26,23 +26,13 @@ def main():
         <style>
         .stApp {
             background-color: #f4f4f4;  /* Fondo blanco */
-            color: #333333;  /* Color de texto oscuro */
+            color: #333333;            /* Color de texto oscuro */
             font-family: 'Arial', sans-serif;
         }
         h1 {
             font-family: 'Helvetica', sans-serif;
-            color: #1a73e8;  /* Título de color azul */
+            color: #1a73e8;           /* Título de color azul */
             text-align: center;
-        }
-        .stButton>button {
-            background-color: #1a73e8;  /* Botón azul */
-            color: white;
-            font-size: 18px;
-            border-radius: 10px;
-            padding: 10px 20px;
-        }
-        .stButton>button:hover {
-            background-color: #0c55b2;  /* Botón al pasar el mouse */
         }
         .stTextInput>div>div>input {
             border-radius: 5px;
@@ -50,8 +40,8 @@ def main():
             font-size: 16px;
             width: 100%;
             background-color: #ffffff;  /* Fondo blanco de los cuadros de texto */
-            color: #333333;  /* Color de texto oscuro */
-            border: 1px solid #ddd;  /* Borde gris claro */
+            color: #333333;            /* Color de texto oscuro */
+            border: 1px solid #ddd;    /* Borde gris claro */
         }
         .stTextInput>div>div>input:focus {
             border: 1px solid #1a73e8;  /* Borde azul cuando está seleccionado */
@@ -75,31 +65,51 @@ def main():
             border-radius: 5px;
             padding: 10px;
         }
+        .stButton>button#recommendations_button {
+            background-color: green;  /* Botón verde */
+            color: white;            /* Texto en blanco para contraste */
+            font-size: 18px;
+            border-radius: 10px;
+            padding: 10px 20px;
+            display: block;
+            margin: 0 auto;         /* Centrar el botón */
+        }
+        .stButton>button#recommendations_button:hover {
+            background-color: lightgreen;  /* Botón al pasar el mouse */
+        }
         </style>
         """,
         unsafe_allow_html=True
     )
-    
 
     st.title("🎬 Movie Finder")
-    st.write("This is a simple movie recommendation system based on the IMDb dataset.")
-    st.write("Ask any question related to movies and I will do my best to provide you with relevant recommendations.")
-    question = st.text_input("Ask me a question:")
-    if st.button("Get Recommendations"):
-        # Load the dataset
-        pathCSV="./peliculasPopulares10k_CLEAN.csv"
-        pathEmbeddings="./imdb_embeddings.npy"
+    st.markdown(
+        """
+        <div style="background-color: green; color: white; padding: 10px; border-radius: 5px; font-weight: bold; font-size: 18px; text-align: center;">
+            This chatbot provides a description of a movie based on the user's query.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-        # Initialize the Dense Retriever
+    question = st.text_input("Provide a description:", "A man bitten by a spider")
+    
+    if st.button("Guess", key="recommendations_button"):
+        # Carga del dataset
+        pathCSV = "./peliculasPopulares10k_CLEAN.csv"
+        pathEmbeddings = "./imdb_embeddings.npy"
+
+        # Inicializa el Dense Retriever
         retriever = DR.DenseRetriever(pathEmbeddings=pathEmbeddings, pathCSV=pathCSV)
 
-        # Initialize the RAG-based QA system
+        # Inicializa el sistema de QA basado en RAG
         rag = RAGQA(retriever)
 
-        # Generate the answer
-        answer = rag.generate_answer(question, top_k=1)
+        # Genera la respuesta
+        answer, title = rag.generate_answer(question, top_k=1)
+        st.write(f"**Movie Title:** {title}")
         st.write(answer)
-    
+
+
 if __name__ == "__main__":
     main()
-   
