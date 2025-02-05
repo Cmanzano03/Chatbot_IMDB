@@ -6,12 +6,12 @@ pip install streamlit
 (remember to add the Path)
 
 streamlit run IMDB_chatbot_UI.py
-
-
 """
 
-
 import streamlit as st
+import pandas as pd
+from RAG import RAGQA
+import DenseRetriever as DR
 
 # Función para simular la respuesta del chatbot (por ejemplo, basado en IMDB)
 def chatbot_response(query, genre):
@@ -80,26 +80,26 @@ def main():
         unsafe_allow_html=True
     )
     
-    # Título de la aplicación
-    st.title('🎬 Chatbot de Películas')
 
-    # Cuadro de texto para escribir la solicitud
-    query = st.text_input("¿Qué película te gustaría buscar?", placeholder="Escribe el título de una película...")
+    st.title("🎬 Movie Finder")
+    st.write("This is a simple movie recommendation system based on the IMDb dataset.")
+    st.write("Ask any question related to movies and I will do my best to provide you with relevant recommendations.")
+    question = st.text_input("Ask me a question:")
+    if st.button("Get Recommendations"):
+        # Load the dataset
+        pathCSV="./peliculasPopulares10k_CLEAN.csv"
+        pathEmbeddings="./imdb_embeddings.npy"
 
-    # Dropdown para elegir el género (con un pequeño ajuste para mejorar su apariencia)
-    genres = ['Acción', 'Comedia', 'Drama', 'Terror', 'Ciencia Ficción', 'Romántica']
-    genre = st.selectbox('Selecciona el género', genres)
+        # Initialize the Dense Retriever
+        retriever = DR.DenseRetriever(pathEmbeddings=pathEmbeddings, pathCSV=pathCSV)
 
-    # Botón para enviar la solicitud
-    if st.button('Buscar'):
-        if query:
-            response = chatbot_response(query, genre)
-            # Mostrar la respuesta en formato Markdown
-            st.markdown(response)
-        else:
-            st.warning('⚠️ Por favor ingresa una solicitud para buscar.')
+        # Initialize the RAG-based QA system
+        rag = RAGQA(retriever)
 
-# Ejecutar la interfaz
-if __name__ == '__main__':
+        # Generate the answer
+        answer = rag.generate_answer(question, top_k=1)
+        st.write(answer)
+    
+if __name__ == "__main__":
     main()
-
+   

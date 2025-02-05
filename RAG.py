@@ -53,12 +53,12 @@ class RAGQA:
 
 if __name__ == "__main__":
     # Cargar el dataset
-    pathCSV="./peliculasPopulares10k.csv"
-    pathEmbeddings=None
-    df = pd.read_csv("./peliculasPopulares10k_Procesado.csv")
+    pathCSV="./peliculasPopulares10k_CLEAN.csv"
+    pathEmbeddings="./imdb_embeddings.npy"
+ 
 
     # Inicializar el Dense Retriever
-    retriever = DR.DenseRetriever(df, pathCSV=pathCSV, pathEmbeddings=None)
+    retriever = DR.DenseRetriever(pathEmbeddings=pathEmbeddings, pathCSV=pathCSV )
 
     # Inicializar el RAG QA
     rag = RAGQA(retriever)
