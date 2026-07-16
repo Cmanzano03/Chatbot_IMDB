@@ -1,0 +1,10 @@
+__pycache__/
+.venv/
+.venv-*/
+.env
+.env.*
+*.py[cod]
+data/*.npy
+data/**/*_embeddings.npy
+data/**/*.pt
+data/**/*.bin
